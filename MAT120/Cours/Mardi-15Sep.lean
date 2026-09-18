@@ -24,6 +24,8 @@ example (P : Prop) : Prop := P -- P est une proposition : un énoncé, ni vrai n
 
 example (P : Prop) (hP : P) : P := hP -- Ici, hP est un **terme** de P, ce qui pour LEAN veut dire que hP est une preuve que P est vraie
 
+exemple (Q: Prop) (hQ : Q)
+
 /- Dans les deux exemples précédents, on doit dire à LEAN qui sont P et hP. Ceci est déclaré entre `example` et `:`.
 
 Après `:`, vient la *demande* : dans le premier exemple on demande à LEAN un exemple de proposition, et on lui donne (`:=`) P. Dans le deuxième exemple, on lui demande une preuve de P, et on lui donne (`:=`) hP. -/
@@ -31,15 +33,16 @@ Après `:`, vient la *demande* : dans le premier exemple on demande à LEAN un e
 -- Quelle est la signification de l'exemple suivant?
 
 example (P : Prop) (nhP : ¬ P) : ¬ P := nhP
+-- P est une proposition, nhp est une preuve que ¬ P est vrai (cad P est faux).
 
 /- 1. Syntaxe de base des connecteurs
 
    Chaque symbole se tape avec une abréviation commençant par `\` :
-     ∧  « et »          \and
-     ∨  « ou »          \or
-     ¬  « non »         \not
-     →  « implique »    \to   (ou \imp)
-     ↔  « équivaut à »  \iff
+     ∧  « et »          \and -- Conjonction de 2 props: P, Q -- P ∧ Q
+     ∨  « ou »          \or -- Disjonction de 2 props: P ∨ Q
+     ¬  « non »         \not -- Negation de prop  ¬ Q
+     →  « implique »    \to   (ou \imp) -- P → Q // contraposée: ¬ Q → ¬ P
+     ↔  « équivaut à »  \iff (if and only if) P ↔ Q ceci est équivalent à ((P → Q) ∧ (Q → P))
 -/
 
 example (P Q : Prop) : Prop := sorry -- conjonction
@@ -55,6 +58,7 @@ example (P Q : Prop) : Prop := sorry -- equivalence
      ℤ  entiers relatifs    \Z
      ℚ  nombres rationnels   \Q
      ℝ  nombres réels        \R
+     ℂ  nombre complexes
 
    Égalité `=` ; différence `≠` (se tape \ne).
 -/
@@ -72,13 +76,13 @@ example : (2 : ℝ) ≠ 3 := by norm_num -- Traduction:
 /- Dans les exemples précedents, `rfl` et `norm_num` sont des exemples de **techniques** de preuve.
 
 D'après votre cours, quels exemples de techniques de preuve connaissez-vous?
-R :=
+R := Contraposé, Contradiction, Directe, Par recurrence, ...
 -/
 
 /- 3. La syntaxe d'un exercice avec VerboseLEAN
 
      Exemple "un titre"
-       Données :    les objets : (P Q : Prop), (n : ℕ), ...
+       Données :    les objets : (P Q : Prop), (n : ℕ), (q : ℚ) ...
        Hypothèses : ce que l'on suppose : (h : P → Q) (hP : P)
        Conclusion : ce que l'on doit démontrer
      Démonstration :
@@ -94,13 +98,23 @@ Exemple "Une implication évidente"
   Hypothèses :
   Conclusion : P → P
 Démonstration :
-  Supposons hP : P
+  Supposons (hP : P) -- suppose que P est vraie
   On conclut par hP
 QED
 
+Exemple "Une égalité évidente"
+  Données : (x : ℝ)
+  Hypothèses :
+  Conclusion : x = x
+Démonstration :
+  On calcule
+  --Supposons (hP : P) -- suppose que P est vraie
+  --On conclut par hP
+QED
+
 Exemple "Exemple d'une preuve avec hypothèses"
-  Données : (P Q : Prop) -- Traduction :
-  Hypothèses : (h : P → Q) (hP : P) -- Traduction :
+  Données : (P Q : Prop) -- Traduction : P et Q sont des propositions
+  Hypothèses : (h : P → Q) (hP : P) -- Traduction : Suppose que (P → Q) est vraie, je suppose aussi que P est vraie
   Conclusion : Q
 Démonstration :
   Par h il suffit de montrer que P -- Exemple de tactique, comparer avec l'exercice 1.23 b)
@@ -134,8 +148,8 @@ Exemple "Une autre façon de prouver et utiliser une implication"
   Conclusion : R → Q
 Démonstration :
   Supposons hR : R
-  Par h appliqué à hR on obtient (hp : P) -- Ceci est une autre façon de rédiger la technique de preuve de l'implication.
-  On conclut par k appliqué à hp
+  Par h appliqué à hR on obtient (hP : P) -- Ceci est une autre façon de rédiger la technique de preuve de l'implication.
+  On conclut par k appliqué à hP
 QED
 
 
@@ -146,7 +160,8 @@ Exemple "Démontrer que les deux ennoncés sont équivalents en utilisant seulem
   Hypothèses :
   Conclusion : (A ∨ (A ∧ B)) ↔ A
 Démonstration :
-On réécrit via LP_12 -- Cette technique nous permet de réécrire une proposition avec une autre proposition équivalente.
+On réécrit via LP_12
+On réécrit via LP-- Cette technique nous permet de réécrire une proposition avec une autre proposition équivalente.
 sorry
 QED
 
@@ -161,7 +176,7 @@ Exemple "Preuve à compléter"
   Hypothèses : (h : P → Q) (hP : P)
   Conclusion : Q
 Démonstration :
-  sorry
+  On conclut par h appliqué à hP
 QED
 
 /- 6. Les quantificateurs
@@ -176,7 +191,7 @@ QED
 Exemple "Pour tout n, n égale n"
   Données :
   Hypothèses :
-  Conclusion : ∀ n : ℕ, n = n
+  Conclusion : ∀ n : ℕ, (n = n) -- Ici (n=n := P(n))
 Démonstration :
   Soit n : ℕ
   On calcule -- Cette technique nous permet de vérifier des égalités, ici clairement n = n, mais on doit le dire à LEAN !
@@ -197,7 +212,9 @@ Exemple "Pour tout x, il existe y plus grand"
   Hypothèses :
   Conclusion : ∀ x : ℕ, ∃ y : ℕ, x ≤ y
 Démonstration :
-  sorry
+  Soit x : ℕ
+  Montrons que x+1 convient
+  On calcule
 QED
 
 /- Bonus (si le temps le permet) : nier et ordonner les quantificateurs.
