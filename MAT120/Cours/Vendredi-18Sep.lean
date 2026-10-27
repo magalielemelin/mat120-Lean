@@ -25,9 +25,9 @@ open Verbose.Named
 
 #check (2=3 : Prop)
 #check ((∃ x : ℕ, x = 1/2) : Prop) -- Dans ce contexte, pour LEAN a/b est le résultat de la division euclidienne de a par b
-example: (1: ℕ)/2 = 0 := by simp -- LEAN a accepté ma preuve du fait que 1/2 : ℕ est égal à 0.
-example: (1: ℝ)/2 ≠ 0 := by simp
-#check (√2 : ℕ)
+example: (1: ℕ)/2 = 0 := by simp -- LEAN a accepté ma preuve du fait que 1/2 : ℕ est égal à 0. 1 = 0*2 + 1
+example: (1: ℝ)/2 ≠ 0 := by simp -- ≠
+#check (√2 : ℕ) -- √2
 
 -- COMMENTAIRES
 
@@ -42,8 +42,9 @@ Exemple "Démontrer que les deux énoncés sont équivalents en utilisant seulem
   Conclusion : (A ∨ (A ∧ B)) ↔ A
 Démonstration :
 On réécrit via LP_12
+On réécrit via LP_6
+On réécrit via LP_13
 -- Cette technique nous permet de réécrire une proposition avec une autre proposition équivalente.
-sorry
 QED
 
 /- Les priorités des opérations en LEAN et parenthèses -/
@@ -62,13 +63,22 @@ example (P Q : ℕ → Prop) : (∀ x, P x ∧ Q x)  ↔ (∀ x, (P x ∧ Q x)) 
 
 /- Exercice : Formaliser l'énoncé 1-c) du fichier lab_4.pdf dans un bloc VerboseLEAN -/
 
-/- Exemple "Exercice 1-c)"
-Données :
+Exemple "Exercice 1-c)"
+Données : (A B : Prop)
   Hypothèses :
-  Conclusion :
+  Conclusion : (¬(A → B)) ↔ A ∧ ¬B
 Démonstration :
-QED -/
+On réécrit via LP_24
+On réécrit via  LP_21
+QED
 
+Exemple "Exercice b)"
+Données : (A B : Prop)
+  Hypothèses :
+  Conclusion : A ∧ (¬A ∨ B) ↔ A ∧ B
+Démonstration :
+On réécrit via LP_15
+QED
 --- 30 min
 
 -- #####################################################################
@@ -93,9 +103,9 @@ Démonstration :
 QED
 
 Exemple "Proposition 2.4"
-  Données: (n : ℤ) -- Traduction:
+  Données: (n : ℤ) -- Traduction: n est un ℤ
   Hypothèses:
-  Conclusion: (∃ k : ℤ, n = 2*k) → (∃ k' :ℤ, n^2 = 2*k') -- Traduction:
+  Conclusion: (∃ k : ℤ, n = 2*k) → (∃ k' :ℤ, n^2 = 2*k') -- Traduction: si n est pair alors n^2 est pair
 Démonstration:
  Supposons n_est_pair : (∃ k : ℤ, n = 2*k)
  Par n_est_pair on obtient k tel que (hn : n = 2*k) -- N'oubliez pas de donner un nom à vos hypothèses en LEAN
@@ -109,12 +119,31 @@ QED
 /- À vos ordinateurs : Formaliser la preuve détaillée de l'exercice 2.29
 -/
 
-/- Exemple "Prouver directement que le produit de deux entiers impairs est impair"
-  Données :
+ Exemple "Prouver directement que le produit de deux entiers impairs est impair"
+  Données : (n p : ℤ )
+  Hypothèses : (h : ∃ k: ℤ, n = 2*k +1) (z : ∃ j: ℤ , p= 2*j +1)
+  Conclusion : (∃ l, n*p = 2*l +1)
+Démonstration:
+  Par hn on obtient n =2*k +1
+  Par hz on obtient z=
+  sorry
+QED
+
+ Exemple "Prouver directement que le produit de deux entiers impairs est impair"
+  Données : (n m : ℤ )
   Hypothèses :
-  Conclusion :
-Démonstration :
-QED -/
+  Conclusion :(∃ k: ℤ, n = 2*k +1) ∧ (∃ k: ℤ , m= 2*k +1) → (∃ l: ℤ, n*m = 2*l +1)
+Démonstration:
+ Supposons nm_impairs
+ Par nm_impairs on obtient hn hm
+ Par hn on obtient k tel que (hk: n = 2*k +1)
+ Par hm on obtient k' tel que (hk': m = 2*k' +1)
+ Montrons que 2*k*k'+ k +k' convient
+ Calc n*m = (2*k+1)*m par hk
+  _ = (2*k+1)*(2*k'+1) par hk'
+  _ =2*(2*k*k' +k+k') +1 par calcul
+QED
+
 
 -- Fin de la première heure, PAUSE
 
@@ -135,25 +164,35 @@ Démonstration :
   Calc n+2 = 2*k+2   par hk
        _   = 2*(k+1) par calcul
   Montrons maintenant que (∃ k' : ℤ, n+2 = 2*k') → (∃ k : ℤ, n = 2*k)
-  Supposons h : ∃ k' : ℤ, n+2 = 2*k'
-  Par h on obtient (k' : ℤ) tel que (hk' : n+2 = 2*k')
+  Supposons H : ∃ k' : ℤ, n+2 = 2*k'
+  Par H on obtient (k' : ℤ) tel que (hk' : n+2 = 2*k')
   Montrons que k'-1 convient
   Calc n = 2*k'-2   par hk'
      _   = 2*(k'-1) par calcul
 QED
 
 
-/- À vos ordinateurs : Formaliser la preuve détaillée de l'exercice 2.30
+-- À vos ordinateurs : Formaliser la preuve détaillée de l'exercice 2.30
 
 Exemple "Prouver que pour tout n : ℤ, n est impair si et seulement si n^2 est impair"
-  Données:
+  Données: (n: ℤ)
   Hypothèses:
-  Conclusion:
+  Conclusion: (∃ k : ℤ, n= 2*k + 1) ↔ (∃ l : ℤ , n^2 = 2*l+1)
 Démonstration:
+  Montrons d'abord que (∃ k: ℤ, n = 2*k+1) → (∃ l: ℤ , n^2 = 2*l+1)
+  Supposons h : ∃ k: ℤ, n = 2*k+1
+  Par h on obtient (k:ℤ) tel que (hk : n = 2*k+1)
+  Montrons que (2*k^2 +2*k) convient
+  Calc n^2 = (2*k +1)^2 par hk
+    _= 4*k^2 +4*k +1 par calcul
+    _=2*(2*k^2 + 2*k)+1 par calcul
+  Montrons maintenant que (∃ l : ℤ, n^2 = 2*l+1) → (∃ k: ℤ, n = 2*k+1)
+  On contrapose
+  sorry
 QED
 
 Q: Quelle technique de démonstration devez-vous connaître pour démontrer que si n^2 est pair, alors n est pair?
--/
+
 
 --- 1h30
 
